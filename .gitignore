@@ -2,6 +2,7 @@
 node_modules
 output
 dist
+program.log
 
 # Editor directories and files
 .vscode/*
