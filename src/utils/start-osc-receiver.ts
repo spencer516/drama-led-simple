@@ -20,7 +20,7 @@ export default function startOSC(
   );
 
   udpPort.on("message", (oscMsg: osc.OSCMessage) => {
-    const [fileArg, frameArg] = oscMsg.args;
+    const [frameArg, fileArg] = oscMsg.args;
     onMessage(fileArg.value, frameArg.value);
   });
 

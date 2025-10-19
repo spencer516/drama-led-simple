@@ -23,7 +23,6 @@ async function main() {
   let currentFrame = 0;
 
   await startOSC((file, frame) => {
-    console.log("", { file, frame });
     currentFile = file;
     currentFrame = frame;
   });

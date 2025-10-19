@@ -7,7 +7,7 @@ declare module "osc" {
 
   export type OSCMessage = {
     address: string;
-    args: [{ type: "s"; value: string }, { type: "i"; value: number }];
+    args: [{ type: "i"; value: number }, { type: "s"; value: string }];
   };
 
   class UDPPort {

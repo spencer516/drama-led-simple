@@ -52,7 +52,7 @@ export default function createDisplay(
   refreshDisplay();
 
   // Update memory usage every 500ms
-  const interval = setInterval(refreshDisplay, 500);
+  const interval = setInterval(refreshDisplay, 16);
 
   // Quit on q or Ctrl+C
   screen.key(["q", "C-c"], () => {
