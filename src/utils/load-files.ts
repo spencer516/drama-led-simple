@@ -1,8 +1,12 @@
 import { readdir, readFile } from "fs/promises";
 import { join, basename } from "path";
 
+export type Frame = {
+  [key: string]: number;
+};
+
 export interface JsonIndex {
-  [key: string]: any;
+  [key: string]: Frame[];
 }
 
 export default async function loadJsonFiles(
@@ -20,7 +24,13 @@ export default async function loadJsonFiles(
       const key = basename(file, ".json");
 
       try {
-        index[key] = JSON.parse(content);
+        const json = JSON.parse(content);
+
+        if (!Array.isArray(json)) {
+          throw new Error("not an array");
+        }
+
+        index[key] = json;
       } catch (error) {
         console.error(`Failed to parse ${file}:`, error);
       }
