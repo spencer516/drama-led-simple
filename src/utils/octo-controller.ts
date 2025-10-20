@@ -13,6 +13,8 @@ export default async function createOctoController(
 ): Promise<(frame: Frame) => unknown> {
   await checkSACNSocket(logger);
 
+  logger.log(`Starting octo at universe ${startUniverse}`);
+
   const sender = new Sender({
     universe: startUniverse,
     iface: networkInterface,

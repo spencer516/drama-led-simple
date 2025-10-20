@@ -38,7 +38,7 @@ async function main() {
   );
 
   const sendToOcto = await createOctoController(logger, {
-    startUniverse: 1000,
+    startUniverse: 1200,
   });
 
   await startOSC(logger, (file, frameNumber) => {
