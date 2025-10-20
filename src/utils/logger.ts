@@ -1,8 +1,22 @@
 import fs from "fs";
 import path from "path";
 
-// Create a write stream for the log file
-const logFilePath = path.join(process.cwd(), "program.log");
+// Find the project root by looking for package.json
+const findProjectRoot = (startDir: string): string => {
+  let currentDir = startDir;
+  while (currentDir !== path.parse(currentDir).root) {
+    if (fs.existsSync(path.join(currentDir, "package.json"))) {
+      return currentDir;
+    }
+    currentDir = path.dirname(currentDir);
+  }
+  // Fallback to current working directory if package.json not found
+  return process.cwd();
+};
+
+// Create a write stream for the log file at project root
+const projectRoot = findProjectRoot(__dirname);
+const logFilePath = path.join(projectRoot, "program.log");
 const logStream = fs.createWriteStream(logFilePath, { flags: "a" });
 
 // Store the original console methods
