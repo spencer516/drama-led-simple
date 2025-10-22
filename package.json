@@ -9,7 +9,8 @@
   "scripts": {
     "build": "tsc",
     "start": "node dist/index.js",
-    "dev": "nodemon -- --directory examples"
+    "dev": "nodemon -- --directory examples",
+    "test-file": "ts-node ./src/run-test.ts -d ../drama-animations/output"
   },
   "keywords": [],
   "author": "",
