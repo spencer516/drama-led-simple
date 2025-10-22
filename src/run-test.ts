@@ -61,19 +61,16 @@ async function main() {
   for (let frame = startFrame; frame < endFrame; frame++) {
     const frameLights = frameData[frame];
 
-    for (const [id, ir, ig, ib] of lightRGBIndices) {
-      const r = frameLights[ir];
-      const g = frameLights[ig];
-      const b = frameLights[ib];
+    outputRows.push({
+      frame,
+      lights: lightRGBIndices.map(([id, ir, ig, ib]) => {
+        const r = frameLights[ir];
+        const g = frameLights[ig];
+        const b = frameLights[ib];
 
-      outputRows.push({
-        frame,
-        id,
-        r,
-        g,
-        b,
-      });
-    }
+        return { id, r, g, b };
+      }),
+    });
   }
 
   outputLightTable(outputRows);

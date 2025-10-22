@@ -1,19 +1,15 @@
 import blessed from "blessed";
 
-type Row = {
-  frame: number;
+type Light = {
   id: number;
   r: number;
   g: number;
   b: number;
 };
 
-const columns = {
-  Frame: 8,
-  Light: 8,
-  Red: 5,
-  Green: 5,
-  Blue: 5,
+type Row = {
+  frame: number;
+  lights: Light[];
 };
 
 export default function outputLightTable(rows: Row[]) {
@@ -69,14 +65,16 @@ export default function outputLightTable(rows: Row[]) {
     },
   });
 
+  const headerText = [
+    "Frame",
+    ...(rows.at(0)?.lights.map((l) => `L${l.id}`) ?? []),
+  ];
+
   const formattedRows = [
-    Object.entries(columns).map(([title, width]) => title.padEnd(width)),
-    ...rows.map(({ frame, id, r, g, b }) => [
-      p(frame, "Frame"),
-      p(id, "Light"),
-      p(r, "Red"),
-      p(g, "Green"),
-      p(b, "Blue"),
+    headerText,
+    ...rows.map(({ frame, lights }) => [
+      p(frame, 6),
+      ...lights.map(({ r, g, b }) => `(${p(r, -3)},${p(g, -3)},${p(b, -3)})`),
     ]),
   ];
 
@@ -89,6 +87,7 @@ export default function outputLightTable(rows: Row[]) {
   screen.render();
 }
 
-function p(value: number, column: keyof typeof columns): string {
-  return `${value.toFixed(0)}`.padEnd(columns[column]);
+function p(value: number, pad: number): string {
+  const val = `${value.toFixed(0)}`;
+  return pad < 0 ? val.padStart(Math.abs(pad)) : val.padEnd(pad);
 }

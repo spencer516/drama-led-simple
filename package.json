@@ -10,7 +10,7 @@
     "build": "tsc",
     "start": "node dist/index.js",
     "dev": "nodemon -- --directory examples",
-    "test-file": "ts-node ./src/run-test.ts -d ../drama-animations/output"
+    "test-file": "ts-node ./src/run-test.ts -d ~/desktop/drama-animation"
   },
   "keywords": [],
   "author": "",
