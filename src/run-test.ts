@@ -52,7 +52,12 @@ async function main() {
     const lightIndex = Number.isFinite(light)
       ? Number(light)
       : parseInt(`${light}`.replace(/[^\d]/g, ""));
-    return [lightIndex, lightIndex * 3, lightIndex * 3 + 1, lightIndex * 3 + 2];
+    return [
+      lightIndex,
+      lightIndex * 3 + 1,
+      lightIndex * 3 + 2,
+      lightIndex * 3 + 3,
+    ];
   });
 
   const endFrame = Math.min(startFrame + countFrames, frameData.length);
