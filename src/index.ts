@@ -2,7 +2,7 @@
 import "./utils/logger"; // Must be first to redirect console.log
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
-import loadJsonFiles from "./utils/load-files";
+import loadJsonFiles, { Frame } from "./utils/load-files";
 import createDisplay from "./utils/render-display";
 import startOSC from "./utils/start-osc-receiver";
 import { commify } from "./utils/commify";
@@ -25,6 +25,8 @@ async function main() {
   let currentFile = "[none]";
   let currentFrame = "-";
 
+  let sendToOcto: ((frame: Frame) => unknown) | null;
+
   const logger = createDisplay(
     () => ({
       currentFile,
@@ -34,10 +36,19 @@ async function main() {
     }),
     () => {
       console.log("exiting...");
+    },
+    () => {
+      const frame: Frame = {};
+
+      for (let channel = 1; channel < 96 * 3; channel++) {
+        frame[channel] = 0;
+      }
+
+      sendToOcto?.(frame);
     }
   );
 
-  const sendToOcto = await createOctoController(logger, {
+  sendToOcto = await createOctoController(logger, {
     startUniverse: 1200,
   });
 

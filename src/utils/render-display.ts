@@ -23,7 +23,8 @@ export type Logger = {
 
 export default function createDisplay(
   getContent: () => DisplayContent,
-  onQuit: () => unknown
+  onQuit: () => unknown,
+  onClearLEDs: () => unknown
 ) {
   // Create a blessed screen
   const screen = blessed.screen({
@@ -112,6 +113,10 @@ export default function createDisplay(
     process.exit(0);
   });
 
+  screen.key(["c"], () => {
+    onClearLEDs();
+  });
+
   screen.render();
 
   return logger;
@@ -126,7 +131,10 @@ function getDisplayContent(
   const heapTotal = formatBytes(memUsage.heapTotal);
   const rss = formatBytes(memUsage.rss);
 
-  const loadedFiles = Object.keys(jsonIndex).join(", ") || "none";
+  const loadedFiles =
+    Object.keys(jsonIndex)
+      .map((file) => `${file} (${jsonIndex[file].length})`)
+      .join(", ") || "none";
   const memoryHeap = `${heapUsed} / ${heapTotal}`;
 
   const messageList = messages
@@ -150,7 +158,7 @@ function getDisplayContent(
 ╚════════════════════════════════════════════════════════════╝
 
 ${messageList ? `{bold}Messages:{/bold}\n${messageList}\n` : ""}
-{gray-fg}Press 'q' or Ctrl+C to quit{/gray-fg}
+{gray-fg}Press 'q' to quit; Press 'c' to turn off LEDs{/gray-fg}
     `.trim();
 }
 
