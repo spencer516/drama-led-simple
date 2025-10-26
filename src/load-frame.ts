@@ -52,7 +52,7 @@ async function main() {
   const framesData = jsonIndex[file] ?? [];
   const frameData = framesData.at(frame ?? 0);
 
-  const sendToOcto = await createOctoController(logger, {
+  const [sendToOcto] = await createOctoController(logger, {
     startUniverse: 1200,
   });
 

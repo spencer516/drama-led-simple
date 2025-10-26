@@ -48,7 +48,7 @@ async function main() {
     }
   );
 
-  sendToOcto = await createOctoController(logger, {
+  [sendToOcto] = await createOctoController(logger, {
     startUniverse: 1200,
   });
 
