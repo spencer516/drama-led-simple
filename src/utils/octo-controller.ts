@@ -26,7 +26,7 @@ export default async function createOctoController(
       const updatedFrame: Frame = {};
 
       for (const [key, val] of Object.entries(frame)) {
-        updatedFrame[key] = val * 0.25;
+        updatedFrame[key] = val * 1;
       }
 
       sender
