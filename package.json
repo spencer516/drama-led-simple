@@ -11,7 +11,7 @@
     "start": "node dist/index.js",
     "dev": "nodemon -- --directory examples",
     "test-file": "ts-node ./src/run-test.ts -d ~/desktop/drama-animation",
-    "test-leds": "ts-node ./src/enable-lights.ts"
+    "test-frame": "ts-node ./src/load-frame.ts -d ~/desktop/drama-animation"
   },
   "keywords": [],
   "author": "",
