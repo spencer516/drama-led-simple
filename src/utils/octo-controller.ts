@@ -7,10 +7,12 @@ type ControllerArgs = {
   startUniverse: number;
 };
 
+export type SendToOcto = (frame: Frame) => unknown;
+
 export default async function createOctoController(
   logger: Logger,
   { startUniverse }: ControllerArgs
-): Promise<[(frame: Frame) => unknown, () => unknown]> {
+): Promise<[SendToOcto, () => unknown]> {
   await checkSACNSocket(logger);
 
   logger.log(`Starting octo at universe ${startUniverse}`);

@@ -5,9 +5,15 @@ declare module "osc" {
     metadata: boolean;
   };
 
+  export type CueType = "go" | "cue/stop" | "cue/start" | "playhead";
+  export type CueFeature = "number" | "name" | "uniqueID" | "type";
+  export type QLabMessage =
+    | `/qlab/event/workspace/${CueType}/${CueFeature}`
+    | `/qlab/event/workspace/${CueType}`;
+
   export type OSCMessage = {
-    address: string;
-    args: [{ type: "i"; value: number }];
+    address: QLabMessage;
+    args: [{ type: "i"; value: string }];
   };
 
   class UDPPort {

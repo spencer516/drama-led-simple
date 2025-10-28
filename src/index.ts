@@ -7,6 +7,7 @@ import createDisplay from "./utils/render-display";
 import startOSC from "./utils/start-osc-receiver";
 import { commify } from "./utils/commify";
 import createOctoController from "./utils/octo-controller";
+import FrameController from "./utils/frame-controller";
 
 async function main() {
   const argv = await yargs(hideBin(process.argv))
@@ -21,19 +22,11 @@ async function main() {
   const directory = argv.directory;
   const jsonIndex = await loadJsonFiles(directory);
 
-  // State
-  let currentFile = "[none]";
-  let currentFrame = "-";
-
   let sendToOcto: ((frame: Frame) => unknown) | null;
 
   const logger = createDisplay(
-    () => ({
-      currentFile,
-      currentFrame,
-      jsonIndex,
-      directory,
-    }),
+    directory,
+    jsonIndex,
     () => {
       console.log("exiting...");
     },
@@ -52,26 +45,13 @@ async function main() {
     startUniverse: 1200,
   });
 
-  await startOSC(logger, (file, frameNumber) => {
-    const frameData = jsonIndex[file];
-    const frameNumberWithComma = commify(frameNumber + 1);
+  const animationLoop = new FrameController(jsonIndex, logger, sendToOcto);
 
-    if (frameData == null) {
-      logger.error(`No file for ${file}`);
-      currentFile = file;
-      currentFrame = "-";
-    } else {
-      const totalFrames = frameData.length;
-      const frame = frameData.at(frameNumber);
-
-      if (frame == null) {
-        logger.warn(`No frame ${frameNumber} found for ${file}`);
-      } else {
-        sendToOcto(frame);
-      }
-
-      currentFile = file;
-      currentFrame = `${frameNumberWithComma} / ${commify(totalFrames)}`;
+  await startOSC(logger, (cueType, file) => {
+    if (cueType === "cue/start") {
+      animationLoop.startFile(file);
+    } else if (cueType === "cue/stop") {
+      animationLoop.stopFile(file);
     }
   });
 }

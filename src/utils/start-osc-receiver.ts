@@ -1,10 +1,10 @@
 // @ts-ignore
-import osc from "osc";
+import osc, { CueFeature, CueType } from "osc";
 import { Logger } from "./render-display";
 
 export default function startOSC(
   logger: Logger,
-  onMessage: (file: string, frame: number) => unknown
+  onMessage: (cueType: osc.CueType, name: string) => unknown
 ): Promise<void> {
   const { promise, resolve, reject } = Promise.withResolvers<void>();
 
@@ -22,16 +22,19 @@ export default function startOSC(
   }, 3000);
 
   udpPort.on("message", (oscMsg: osc.OSCMessage) => {
-    const [frameArg] = oscMsg.args;
-    // Convert the 1-indexed frames into 0-indexed
-    const frameNumber = frameArg.value - 1;
-    const fileName = oscMsg.address.replace("/", "");
+    const [cueType, cueFeature] = oscMsg.address
+      .replace("/qlab/event/workspace/", "")
+      .split("/") as [CueType, CueFeature | null];
 
-    if (frameNumber < 0) {
-      logger.warn(`Frames should start at at least 1 [file: ${fileName}]`);
+    if (cueFeature === "name") {
+      const [{ value }] = oscMsg.args;
+
+      const [_, file] = value.match(/\[LED:(\S+)\]/) ?? [];
+
+      if (file != null) {
+        onMessage(cueType, value);
+      }
     }
-
-    onMessage(fileName, frameNumber);
   });
 
   udpPort.on("error", (error: string) => {

@@ -1,6 +1,7 @@
 import blessed from "blessed";
 import { formatBytes } from "./format-bytes";
 import { JsonIndex } from "./load-files";
+import { commify } from "./commify";
 
 type DisplayContent = {
   jsonIndex: JsonIndex;
@@ -19,10 +20,14 @@ export type Logger = {
   warn: (message: string) => void;
   log: (message: string) => void;
   error: (message: string) => void;
+  setCurrentFile: (file: string) => void;
+  setCurrentFrame: (frame: number, totalFrames: number) => void;
 };
 
 export default function createDisplay(
-  getContent: () => DisplayContent,
+  directory: string,
+  jsonIndex: JsonIndex,
+  // getContent: () => DisplayContent,
   onQuit: () => unknown,
   onClearLEDs: () => unknown
 ) {
@@ -58,6 +63,9 @@ export default function createDisplay(
   let cachedMemoryUsage = process.memoryUsage();
   const messages: Message[] = [];
 
+  let currentFile = "[none]";
+  let currentFrame = "-";
+
   const logger: Logger = {
     warn: (message: string) => {
       messages.unshift({ type: "warn", text: message });
@@ -80,6 +88,12 @@ export default function createDisplay(
       }
       refreshDisplay();
     },
+    setCurrentFile: (file: string) => {
+      currentFile = file;
+    },
+    setCurrentFrame: (number: number, totalFrames: number) => {
+      currentFrame = `${commify(number)} / ${commify(totalFrames)}`;
+    },
   };
 
   function refreshDisplay() {
@@ -89,9 +103,8 @@ export default function createDisplay(
       lastMemoryUpdate = now;
     }
 
-    const latestContent = getContent();
     const displayText = getDisplayContent(
-      latestContent,
+      { directory, jsonIndex, currentFile, currentFrame },
       cachedMemoryUsage,
       messages
     );
@@ -102,13 +115,9 @@ export default function createDisplay(
 
   refreshDisplay();
 
-  // Update memory usage every 500ms
-  const interval = setInterval(refreshDisplay, 16);
-
   // Quit on q or Ctrl+C
   screen.key(["q", "C-c"], () => {
     onQuit();
-    clearInterval(interval);
     screen.destroy();
     process.exit(0);
   });
