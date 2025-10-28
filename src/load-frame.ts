@@ -34,6 +34,12 @@ async function main() {
     error(message: string) {
       console.error(message);
     },
+    setCurrentFile(file: string) {
+      // do nothing
+    },
+    setCurrentFrame(frame: number, totalFrames: number) {
+      // do nothing
+    },
   };
 
   const { directory, file, frame } = argv;
