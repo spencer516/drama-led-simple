@@ -10,16 +10,21 @@ import createOctoController from "./utils/octo-controller";
 import FrameController from "./utils/frame-controller";
 
 async function main() {
-  const argv = await yargs(hideBin(process.argv))
+  const { directory, disableOcto } = await yargs(hideBin(process.argv))
     .option("directory", {
       alias: "d",
       type: "string",
       description: "Directory to search for JSON files",
       default: process.cwd(),
     })
+    .option("disable-octo", {
+      alias: "o",
+      type: "boolean",
+      description: "Disable outputting to Octo",
+      default: false,
+    })
     .help().argv;
 
-  const directory = argv.directory;
   const jsonIndex = await loadJsonFiles(directory);
 
   let sendToOcto: ((frame: Frame) => unknown) | null;
@@ -41,9 +46,13 @@ async function main() {
     }
   );
 
-  [sendToOcto] = await createOctoController(logger, {
-    startUniverse: 1200,
-  });
+  if (!disableOcto) {
+    [sendToOcto] = await createOctoController(logger, {
+      startUniverse: 1200,
+    });
+  } else {
+    sendToOcto = (_: Frame) => null;
+  }
 
   const animationLoop = new FrameController(jsonIndex, logger, sendToOcto);
 

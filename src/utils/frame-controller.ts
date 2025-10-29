@@ -42,6 +42,7 @@ export default class FrameController {
       const subscriberFrame = this.currentFrame - startFrame;
 
       if (subscriberFrame > totalFrames) {
+        this.logger.log(`${file} completed`);
         this.stopSubscriber(subscriber);
       } else {
         const frame = this.currentFrame - startFrame;
@@ -62,6 +63,7 @@ export default class FrameController {
     const subscriber = this.subscribers.get(file);
 
     if (subscriber != null) {
+      this.logger.log(`Stopping file ${file}`);
       this.stopSubscriber(subscriber);
     }
   }
@@ -90,6 +92,7 @@ export default class FrameController {
     totalFrames: number,
     callback: FrameCallback
   ): () => unknown {
+    this.logger.log(`Starting file ${file}`);
     if (!this.running) {
       this.running = true;
       this.currentFrame = 0;

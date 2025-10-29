@@ -9,7 +9,7 @@
   "scripts": {
     "build": "tsc",
     "start": "node dist/index.js",
-    "dev": "nodemon -- --directory examples",
+    "dev": "nodemon -- --directory ~/desktop/drama-animation --disable-octo",
     "test-file": "ts-node ./src/run-test.ts -d ~/desktop/drama-animation",
     "test-frame": "ts-node ./src/load-frame.ts -d ~/desktop/drama-animation",
     "test-lights": "ts-node ./src/test-lights.ts"
