@@ -10,7 +10,11 @@ declare module "osc" {
     | "auditionGo"
     | "cue/stop"
     | "cue/start"
-    | "playhead";
+    | "playhead"
+    | "pauseAll"
+    | "panicAll"
+    | "stopAll"
+    | "hardStopAll";
   export type CueFeature = "number" | "name" | "uniqueID" | "type";
   export type QLabMessage =
     | `/qlab/event/workspace/${CueType}/${CueFeature}`
@@ -18,12 +22,12 @@ declare module "osc" {
 
   export type OSCMessage = {
     address: QLabMessage;
-    args: [{ type: "i"; value: string }];
+    args: { type: "i"; value: string }[];
   };
 
   export type SendMessage = {
     address: "/listen";
-    args: [];
+    args: { value: string }[];
   };
 
   class UDPPort {

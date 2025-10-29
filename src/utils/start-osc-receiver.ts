@@ -4,7 +4,9 @@ import { Logger } from "./render-display";
 
 export default function startOSC(
   logger: Logger,
-  onMessage: (cueType: osc.CueType, name: string) => unknown
+  onGoCue: (args: { file: string; id: string }) => unknown,
+  onStopCue: (args: { id: string }) => unknown,
+  onHardStop: () => unknown
 ): Promise<void> {
   const { promise, resolve, reject } = Promise.withResolvers<void>();
 
@@ -21,25 +23,36 @@ export default function startOSC(
     reject("Timed out starting OSC server");
   }, 3000);
 
+  const goCues = ["go", "auditionGo"];
+  const hardStopCues = ["pauseAll", "panicAll", "stopAll", "hardStopAll"];
+  const stopCues = ["cue/stop"];
+
   udpPort.on("message", (oscMsg: osc.OSCMessage) => {
-    const [cueType, cueFeature] = oscMsg.address
-      .replace("/qlab/event/workspace/", "")
-      .split("/") as [CueType, CueFeature | null];
+    const cueType = oscMsg.address.replace("/qlab/event/workspace/", "");
 
     const [arg] = oscMsg.args ?? [];
     const value = arg?.value;
 
-    if (cueFeature === "name" && value != null) {
-      const [_, file] = value.match(/\[LED:(\S+)\]/) ?? [];
+    if (hardStopCues.includes(cueType)) {
+      onHardStop();
+    } else if (goCues.includes(cueType)) {
+      const maybeFile = oscMsg.args.at(1)?.value ?? "";
+      const id = oscMsg.args.at(2)?.value;
 
-      if (file != null) {
-        onMessage(cueType, file);
+      const [_, file] = maybeFile.match(/\[LED:(\S+)\]/) ?? [];
+
+      if (file != null && id != null) {
+        onGoCue({ file, id });
+      }
+    } else if (stopCues.includes(cueType)) {
+      const id = oscMsg.args.at(2)?.value;
+      if (id != null) {
+        onStopCue({ id });
       }
     }
   });
 
   udpPort.on("error", (error: string) => {
-    console.log(error);
     logger.error(`Error starting OSC server: ${error}`);
   });
 

@@ -69,21 +69,21 @@ export default function createDisplay(
   const logger: Logger = {
     warn: (message: string) => {
       messages.unshift({ type: "warn", text: message });
-      if (messages.length > 5) {
+      if (messages.length > 10) {
         messages.pop();
       }
       refreshDisplay();
     },
     log: (message: string) => {
       messages.unshift({ type: "log", text: message });
-      if (messages.length > 5) {
+      if (messages.length > 10) {
         messages.pop();
       }
       refreshDisplay();
     },
     error: (message: string) => {
       messages.unshift({ type: "error", text: message });
-      if (messages.length > 5) {
+      if (messages.length > 10) {
         messages.pop();
       }
       refreshDisplay();

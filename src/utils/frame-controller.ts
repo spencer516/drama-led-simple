@@ -5,9 +5,15 @@ import { Logger } from "./render-display";
 type FrameCallback = (frame: number) => unknown;
 
 type Subscriber = {
+  id: string;
   callback: FrameCallback;
   startFrame: number;
   totalFrames: number;
+  file: string;
+};
+
+type StartArgs = {
+  id: string;
   file: string;
 };
 
@@ -59,16 +65,23 @@ export default class FrameController {
     this.timer = setTimeout(this.loop, delay);
   };
 
-  public stopFile(file: string) {
-    const subscriber = this.subscribers.get(file);
-
-    if (subscriber != null) {
-      this.logger.log(`Stopping file ${file}`);
+  public stopAll() {
+    for (const subscriber of this.subscribers.values()) {
       this.stopSubscriber(subscriber);
     }
   }
 
-  public startFile(file: string) {
+  public stopID({ id }: { id: string }) {
+    const subscriber = this.subscribers.get(id);
+
+    if (subscriber != null) {
+      this.logger.log(`Stopping file ${subscriber.file}`);
+      this.stopSubscriber(subscriber);
+    }
+  }
+
+  public startID(args: StartArgs) {
+    const { file } = args;
     if (!(file in this.jsonIndex)) {
       this.logger.error(`No file for ${file}`);
       return;
@@ -76,7 +89,7 @@ export default class FrameController {
 
     const frameData = this.jsonIndex[file];
 
-    this.start(file, frameData.length, (frameNumber) => {
+    this.start(args, frameData.length, (frameNumber) => {
       const frame = frameData.at(frameNumber);
 
       if (frame == null) {
@@ -88,11 +101,16 @@ export default class FrameController {
   }
 
   private start(
-    file: string,
+    { file, id }: StartArgs,
     totalFrames: number,
     callback: FrameCallback
   ): () => unknown {
     this.logger.log(`Starting file ${file}`);
+
+    if (this.subscribers.has(id)) {
+      this.stopID({ id });
+    }
+
     if (!this.running) {
       this.running = true;
       this.currentFrame = 0;
@@ -101,14 +119,14 @@ export default class FrameController {
     }
 
     const subscriber = {
+      id,
       startFrame: this.currentFrame,
       file,
       callback,
       totalFrames,
     };
 
-    this.stopFile(file);
-    this.subscribers.set(file, subscriber);
+    this.subscribers.set(id, subscriber);
 
     return () => {
       this.stopSubscriber(subscriber);
@@ -116,7 +134,7 @@ export default class FrameController {
   }
 
   private stopSubscriber(subscriber: Subscriber) {
-    this.subscribers.delete(subscriber.file);
+    this.subscribers.delete(subscriber.id);
 
     if (this.subscribers.size === 0) {
       this.stopImpl();

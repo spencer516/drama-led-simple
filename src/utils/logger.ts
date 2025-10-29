@@ -36,7 +36,9 @@ const formatArgs = (args: any[]): string => {
       if (arg instanceof Error) {
         return `${arg.name}: ${arg.message}\n${arg.stack}`;
       }
-      return typeof arg === "object" ? JSON.stringify(arg, null, 2) : String(arg);
+      return typeof arg === "object"
+        ? JSON.stringify(arg, null, 2)
+        : String(arg);
     })
     .join(" ");
 };
@@ -45,7 +47,8 @@ const formatArgs = (args: any[]): string => {
 const writeToLog = (level: string, args: any[]) => {
   const timestamp = new Date().toISOString();
   const message = formatArgs(args);
-  logStream.write(`[${timestamp}] [${level}] ${message}\n`);
+  // logStream.write(`[${timestamp}] [${level}] ${message}\n`);
+  logStream.write(`${message}\n`);
 };
 
 // Override console.log

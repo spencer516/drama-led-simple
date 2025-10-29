@@ -6,7 +6,7 @@ import loadJsonFiles, { Frame } from "./utils/load-files";
 import createDisplay from "./utils/render-display";
 import startOSC from "./utils/start-osc-receiver";
 import { commify } from "./utils/commify";
-import createOctoController from "./utils/octo-controller";
+import createOctoController, { SendToOcto } from "./utils/octo-controller";
 import FrameController from "./utils/frame-controller";
 
 async function main() {
@@ -56,13 +56,25 @@ async function main() {
 
   const animationLoop = new FrameController(jsonIndex, logger, sendToOcto);
 
-  await startOSC(logger, (cueType, file) => {
-    if (cueType === "go" || cueType === "auditionGo") {
-      animationLoop.startFile(file);
-    } else if (cueType === "cue/stop") {
-      animationLoop.stopFile(file);
+  await startOSC(
+    logger,
+    (args) => animationLoop.startID(args),
+    (args) => animationLoop.stopID(args),
+    () => {
+      logger.log("HARD STOP!");
+      animationLoop.stopAll();
+      sendToOcto != null && hardStop(sendToOcto);
     }
-  });
+  );
+}
+
+function hardStop(sendToOcto: SendToOcto) {
+  const frame: Frame = {};
+
+  for (let channel = 1; channel < 96 * 3; channel++) {
+    frame[channel] = 0;
+  }
+  sendToOcto(frame);
 }
 
 main().catch(console.error);
