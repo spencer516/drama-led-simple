@@ -30,9 +30,6 @@ export default function startOSC(
   udpPort.on("message", (oscMsg: osc.OSCMessage) => {
     const cueType = oscMsg.address.replace("/qlab/event/workspace/", "");
 
-    const [arg] = oscMsg.args ?? [];
-    const value = arg?.value;
-
     if (hardStopCues.includes(cueType)) {
       onHardStop();
     } else if (goCues.includes(cueType)) {
