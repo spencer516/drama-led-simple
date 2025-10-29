@@ -46,6 +46,7 @@ async function main() {
 
   const [sendToOcto, close] = await createOctoController(logger, {
     startUniverse: 1200,
+    brightnessFactor: 1,
   });
 
   sendToOcto(makeEmptyFrame(red, green, blue));
@@ -58,12 +59,12 @@ const start = 0;
 const numLights = 96;
 
 function makeEmptyFrame(red: number, green: number, blue: number): Frame {
-  let frame: Frame = {};
+  let frame: Frame = [];
 
   for (let i = start; i < numLights + start; i++) {
-    frame[`${i * 3 + 1}`] = red;
-    frame[`${i * 3 + 2}`] = green;
-    frame[`${i * 3 + 3}`] = blue;
+    frame[i * 3] = red;
+    frame[i * 3 + 1] = green;
+    frame[i * 3 + 2] = blue;
   }
 
   return frame;

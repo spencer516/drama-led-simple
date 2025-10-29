@@ -60,6 +60,7 @@ async function main() {
 
   const [sendToOcto] = await createOctoController(logger, {
     startUniverse: 1200,
+    brightnessFactor: 1,
   });
 
   if (frameData == null) {
@@ -99,10 +100,10 @@ async function* iterateLightsInFrame(frameData: Frame) {
 }
 
 function makeEmptyFrame(val: number = 0): Frame {
-  let frame: Frame = {};
+  let frame: Frame = [];
 
   for (let i = 0; i < 96 * 3; i++) {
-    frame[`${i}`] = val;
+    frame[i] = val;
   }
 
   return frame;
