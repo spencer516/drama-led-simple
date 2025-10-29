@@ -5,14 +5,20 @@ import { Frame } from "./load-files";
 
 type ControllerArgs = {
   startUniverse: number;
+  brightnessFactor: number;
+};
+
+type OctoFrame = {
+  [frame: string]: number;
 };
 
 export type SendToOcto = (frame: Frame) => unknown;
 
 export default async function createOctoController(
   logger: Logger,
-  { startUniverse }: ControllerArgs
+  { startUniverse, brightnessFactor }: ControllerArgs
 ): Promise<[SendToOcto, () => unknown]> {
+  const brightnessFactorClamped = Math.max(Math.min(brightnessFactor, 1), 0);
   await checkSACNSocket(logger);
 
   logger.log(`Starting octo at universe ${startUniverse}`);
@@ -25,15 +31,17 @@ export default async function createOctoController(
 
   return [
     (frame: Frame) => {
-      const updatedFrame: Frame = {};
+      const octoFrame: OctoFrame = {};
 
-      for (const [key, val] of Object.entries(frame)) {
-        updatedFrame[key] = val * 1;
+      for (let channel = 0; channel < frame.length; channel++) {
+        // Octo Frames are 1-indexed
+        octoFrame[`${channel + 1}`] =
+          (frame.at(channel) as number) * brightnessFactorClamped;
       }
 
       sender
         .send({
-          payload: updatedFrame,
+          payload: octoFrame,
           sourceName: "Drama LED Server",
           priority: 200,
         })

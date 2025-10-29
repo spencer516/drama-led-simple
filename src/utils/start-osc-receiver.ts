@@ -36,7 +36,7 @@ export default function startOSC(
       const maybeFile = oscMsg.args.at(1)?.value ?? "";
       const id = oscMsg.args.at(2)?.value;
 
-      const [_, file] = maybeFile.match(/\[LED:(\S+)\]/) ?? [];
+      const [_, file] = maybeFile.match(/(\S+)\.mp4/) ?? [];
 
       if (file != null && id != null) {
         onGoCue({ file, id });
