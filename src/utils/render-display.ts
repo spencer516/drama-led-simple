@@ -90,9 +90,11 @@ export default function createDisplay(
     },
     setCurrentFile: (file: string) => {
       currentFile = file;
+      refreshDisplay();
     },
     setCurrentFrame: (number: number, totalFrames: number) => {
       currentFrame = `${commify(number)} / ${commify(totalFrames)}`;
+      refreshDisplay();
     },
   };
 

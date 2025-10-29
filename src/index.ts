@@ -57,7 +57,7 @@ async function main() {
   const animationLoop = new FrameController(jsonIndex, logger, sendToOcto);
 
   await startOSC(logger, (cueType, file) => {
-    if (cueType === "cue/start") {
+    if (cueType === "go" || cueType === "auditionGo") {
       animationLoop.startFile(file);
     } else if (cueType === "cue/stop") {
       animationLoop.stopFile(file);

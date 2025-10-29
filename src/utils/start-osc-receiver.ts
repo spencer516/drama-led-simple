@@ -26,23 +26,32 @@ export default function startOSC(
       .replace("/qlab/event/workspace/", "")
       .split("/") as [CueType, CueFeature | null];
 
-    if (cueFeature === "name") {
-      const [{ value }] = oscMsg.args;
+    const [arg] = oscMsg.args ?? [];
+    const value = arg?.value;
 
+    if (cueFeature === "name" && value != null) {
       const [_, file] = value.match(/\[LED:(\S+)\]/) ?? [];
 
       if (file != null) {
-        onMessage(cueType, value);
+        onMessage(cueType, file);
       }
     }
   });
 
   udpPort.on("error", (error: string) => {
     console.log(error);
-    logger.error("Error starting OSC server");
+    logger.error(`Error starting OSC server: ${error}`);
   });
 
   udpPort.on("ready", () => {
+    udpPort.send(
+      {
+        address: "/listen",
+        args: [],
+      },
+      "127.0.0.1",
+      53000
+    );
     logger.log("OSC Server Started");
     clearTimeout(timeout);
     resolve();

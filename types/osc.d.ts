@@ -5,7 +5,12 @@ declare module "osc" {
     metadata: boolean;
   };
 
-  export type CueType = "go" | "cue/stop" | "cue/start" | "playhead";
+  export type CueType =
+    | "go"
+    | "auditionGo"
+    | "cue/stop"
+    | "cue/start"
+    | "playhead";
   export type CueFeature = "number" | "name" | "uniqueID" | "type";
   export type QLabMessage =
     | `/qlab/event/workspace/${CueType}/${CueFeature}`
@@ -14,6 +19,11 @@ declare module "osc" {
   export type OSCMessage = {
     address: QLabMessage;
     args: [{ type: "i"; value: string }];
+  };
+
+  export type SendMessage = {
+    address: "/listen";
+    args: [];
   };
 
   class UDPPort {
@@ -26,6 +36,7 @@ declare module "osc" {
     on(event: "error", callback: (message: string) => void): void;
     on(event: string, callback: (...args: any[]) => void): void;
     open(): void;
+    send(message: SendMessage, ip: string, port: number): void;
   }
 
   export { UDPPort };
