@@ -19,6 +19,7 @@ export default async function createOctoController(
   { startUniverse, brightnessFactor }: ControllerArgs
 ): Promise<[SendToOcto, () => unknown]> {
   const brightnessFactorClamped = Math.max(Math.min(brightnessFactor, 1), 0);
+  // TODO: Put this back!!
   await checkSACNSocket(logger);
 
   logger.log(`Starting octo at universe ${startUniverse}`);

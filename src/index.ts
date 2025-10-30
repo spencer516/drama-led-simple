@@ -48,16 +48,17 @@ async function main() {
 
   const animationLoop = new FrameController(jsonIndex, logger, sendToOcto);
 
-  await startOSC(
+  await startOSC({
     logger,
-    (args) => animationLoop.startID(args),
-    (args) => animationLoop.stopID(args),
-    () => {
+    onPlayCue: (file) => animationLoop.startFile(file),
+    onStopCue: (file) => animationLoop.stopFile(file),
+    onPauseCue: (file) => animationLoop.pauseFile(file),
+    onHardStop: () => {
       logger.log("HARD STOP!");
       animationLoop.stopAll();
       hardStop(sendToOcto);
-    }
-  );
+    },
+  });
 }
 
 function hardStop(sendToOcto: SendToOcto | null) {

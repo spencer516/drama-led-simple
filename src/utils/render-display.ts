@@ -3,11 +3,17 @@ import { formatBytes } from "./format-bytes";
 import { JsonIndex } from "./load-files";
 import { commify } from "./commify";
 
+export type ActiveCue = {
+  file: string;
+  state: "running" | "paused";
+  currentFrame: number;
+  totalFrames: number;
+};
+
 type DisplayContent = {
   jsonIndex: JsonIndex;
   directory: string;
-  currentFile: string;
-  currentFrame: string;
+  activeCues: ActiveCue[];
 };
 
 type MessageType = "warn" | "log" | "error";
@@ -20,8 +26,7 @@ export type Logger = {
   warn: (message: string) => void;
   log: (message: string) => void;
   error: (message: string) => void;
-  setCurrentFile: (file: string) => void;
-  setCurrentFrame: (frame: number, totalFrames: number) => void;
+  setActiveCues: (cues: ActiveCue[]) => void;
 };
 
 export default function createDisplay(
@@ -63,8 +68,7 @@ export default function createDisplay(
   let cachedMemoryUsage = process.memoryUsage();
   const messages: Message[] = [];
 
-  let currentFile = "[none]";
-  let currentFrame = "-";
+  let activeCues: ActiveCue[] = [];
 
   const logger: Logger = {
     warn: (message: string) => {
@@ -88,12 +92,8 @@ export default function createDisplay(
       }
       refreshDisplay();
     },
-    setCurrentFile: (file: string) => {
-      currentFile = file;
-      refreshDisplay();
-    },
-    setCurrentFrame: (number: number, totalFrames: number) => {
-      currentFrame = `${commify(number)} / ${commify(totalFrames)}`;
+    setActiveCues: (cues: ActiveCue[]) => {
+      activeCues = cues;
       refreshDisplay();
     },
   };
@@ -106,7 +106,7 @@ export default function createDisplay(
     }
 
     const displayText = getDisplayContent(
-      { directory, jsonIndex, currentFile, currentFrame },
+      { directory, jsonIndex, activeCues },
       cachedMemoryUsage,
       messages
     );
@@ -134,7 +134,7 @@ export default function createDisplay(
 }
 
 function getDisplayContent(
-  { jsonIndex, directory, currentFile, currentFrame }: DisplayContent,
+  { jsonIndex, directory, activeCues }: DisplayContent,
   memUsage: NodeJS.MemoryUsage,
   messages: Message[]
 ) {
@@ -155,22 +155,45 @@ function getDisplayContent(
     })
     .join("\n");
 
+  const activeCueText =
+    activeCues.length === 0
+      ? noActiveCue()
+      : activeCues.map(makeActiveCue).join("\n");
+
   return `
 {bold}{cyan-fg}Jesuit Drama LED Controller Status{/cyan-fg}{/bold}
 
 {yellow-fg}Directory:{/yellow-fg} ${directory}
 {yellow-fg}Loaded Files:{/yellow-fg} ${loadedFiles}
 
-╔════════════════════════════════════════════════════════════╗
-║ {bold}Current File:{/bold}     ${currentFile.padEnd(40)} ║
-║ {bold}Current Frame:{/bold}    ${currentFrame.padEnd(40)} ║
-║ {bold}Memory (Heap):{/bold}    ${memoryHeap.padEnd(40)} ║
-║ {bold}Memory (RSS):{/bold}     ${rss.padEnd(40)} ║
-╚════════════════════════════════════════════════════════════╝
+╔════════════════════════════════════════════════════════════════════════════════╗
+${activeCueText}
+║ {bold}Memory (Heap):{/bold}    ${memoryHeap.padEnd(60)} ║
+║ {bold}Memory (RSS):{/bold}     ${rss.padEnd(60)} ║
+╚════════════════════════════════════════════════════════════════════════════════╝
 
 ${messageList ? `{bold}Messages:{/bold}\n${messageList}\n` : ""}
 {gray-fg}Press 'q' to quit; Press 'c' to turn off LEDs{/gray-fg}
     `.trim();
+}
+
+function noActiveCue() {
+  return `
+║ {bold}Active Cue:{/bold}       ${"(No Active Cues)".padEnd(60)} ║
+  `.trim();
+}
+
+function makeActiveCue(cue: ActiveCue, index: number): string {
+  const paused = cue.state === "paused" ? "[PAUSED]" : "";
+  const parts = [
+    cue.file,
+    `${commify(cue.currentFrame)} / ${commify(cue.totalFrames)}`,
+    cue.state === "paused" ? "- PAUSED" : "",
+  ].join(" ");
+
+  return `
+║ {bold}Active Cue:{/bold}       ${parts.padEnd(60)} ║
+  `.trim();
 }
 
 function formatMessagePrefix(type: MessageType): string {

@@ -3,6 +3,7 @@ import createOctoController from "./utils/octo-controller";
 import { hideBin } from "yargs/helpers";
 import yargs from "yargs";
 import loadJsonFiles, { Frame } from "./utils/load-files";
+import { ActiveCue } from "./utils/render-display";
 
 async function main() {
   const argv = await yargs(hideBin(process.argv))
@@ -34,11 +35,8 @@ async function main() {
     error(message: string) {
       console.error(message);
     },
-    setCurrentFile(file: string) {
-      // do nothing
-    },
-    setCurrentFrame(frame: number, totalFrames: number) {
-      // do nothing
+    setActiveCues(cues: ActiveCue[]) {
+      // Do nothing.
     },
   };
 

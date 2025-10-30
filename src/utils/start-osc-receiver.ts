@@ -1,13 +1,23 @@
 // @ts-ignore
 import osc, { CueFeature, CueType } from "osc";
 import { Logger } from "./render-display";
+import { Filename, makeFile } from "./frame-controller";
 
-export default function startOSC(
-  logger: Logger,
-  onGoCue: (args: { file: string; id: string }) => unknown,
-  onStopCue: (args: { id: string }) => unknown,
-  onHardStop: () => unknown
-): Promise<void> {
+type Params = {
+  logger: Logger;
+  onPlayCue: (file: Filename) => unknown;
+  onStopCue: (file: Filename) => unknown;
+  onPauseCue: (file: Filename) => unknown;
+  onHardStop: () => unknown;
+};
+
+export default function startOSC({
+  logger,
+  onPlayCue,
+  onStopCue,
+  onPauseCue,
+  onHardStop,
+}: Params): Promise<void> {
   const { promise, resolve, reject } = Promise.withResolvers<void>();
 
   const options = {
@@ -23,29 +33,38 @@ export default function startOSC(
     reject("Timed out starting OSC server");
   }, 3000);
 
-  const goCues = ["go", "auditionGo"];
   const hardStopCues = ["pauseAll", "panicAll", "stopAll", "hardStopAll"];
-  const stopCues = ["cue/stop"];
 
   udpPort.on("message", (oscMsg: osc.OSCMessage) => {
-    const cueType = oscMsg.address.replace("/qlab/event/workspace/", "");
+    const trigger = oscMsg.address.replace("/qlab/event/workspace/", "");
 
-    if (hardStopCues.includes(cueType)) {
+    if (hardStopCues.includes(trigger)) {
       onHardStop();
-    } else if (goCues.includes(cueType)) {
-      const maybeFile = oscMsg.args.at(1)?.value ?? "";
-      const id = oscMsg.args.at(2)?.value;
+      return;
+    }
 
-      const [_, file] = maybeFile.match(/(\S+)\.mp4/) ?? [];
+    // Nothing that isn't triggering a cue, we ignore.
+    if (trigger !== "cue/start") {
+      return;
+    }
 
-      if (file != null && id != null) {
-        onGoCue({ file, id });
-      }
-    } else if (stopCues.includes(cueType)) {
-      const id = oscMsg.args.at(2)?.value;
-      if (id != null) {
-        onStopCue({ id });
-      }
+    const maybeFile = oscMsg.args.at(1)?.value ?? "";
+    const cueType = oscMsg.args.at(3)?.value;
+    const [_, file] = maybeFile.match(/(\S+)\.mp4/) ?? [];
+
+    // If there's no file in the cue name, we ignore
+    if (file == null) {
+      return;
+    }
+
+    const typedFile = makeFile(file);
+
+    if (cueType === "Video") {
+      onPlayCue(typedFile);
+    } else if (cueType === "Pause") {
+      onPauseCue(typedFile);
+    } else if (cueType === "Stop") {
+      onStopCue(typedFile);
     }
   });
 
