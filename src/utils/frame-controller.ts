@@ -114,6 +114,13 @@ export default class FrameController {
       return;
     }
 
+    // If we're pausing before we've played ANY
+    // frames, then let's at least emit the first one.
+    if (subscriber.currentFrame === 0) {
+      subscriber.currentFrame = 1;
+      subscriber.callback(1);
+    }
+
     this.pausedFiles.set(file, subscriber);
     this.logger.log(`Pausing file ${subscriber.file}`);
     this.stopSubscriber(subscriber);
@@ -123,14 +130,11 @@ export default class FrameController {
     const subscriber = this.subscribers.get(file);
 
     if (subscriber != null) {
-      this.logger.log(`Stopping file ${subscriber.file}`);
       this.stopSubscriber(subscriber);
-    }
-
-    // Remove from paused if it exists.
-    if (this.pausedFiles.has(file)) {
-      this.logger.log(`Stopping file ${file}`);
+      this.logger.log(`Stopping file ${subscriber.file}`);
+    } else if (this.pausedFiles.has(file)) {
       this.pausedFiles.delete(file);
+      this.logger.log(`Stopping file ${file}`);
     }
   }
 
