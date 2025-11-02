@@ -46,8 +46,8 @@ export default function createDisplay(
   const box = blessed.box({
     top: "center",
     left: "center",
-    width: "90%",
-    height: "90%",
+    width: "100%",
+    height: "100%",
     content: "",
     tags: true,
     border: {
@@ -56,9 +56,6 @@ export default function createDisplay(
     style: {
       fg: "white",
       bg: "black",
-      border: {
-        fg: "#f0f0f0",
-      },
     },
   });
 
@@ -142,10 +139,7 @@ function getDisplayContent(
   const heapTotal = formatBytes(memUsage.heapTotal);
   const rss = formatBytes(memUsage.rss);
 
-  const loadedFiles =
-    Object.keys(jsonIndex)
-      .map((file) => `${file} (${jsonIndex[file].length})`)
-      .join(", ") || "none";
+  const loadedFiles = `${Object.keys(jsonIndex).length} files`;
   const memoryHeap = `${heapUsed} / ${heapTotal}`;
 
   const messageList = messages
