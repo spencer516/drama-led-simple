@@ -1,5 +1,5 @@
 // @ts-ignore
-import osc, { CueFeature, CueType } from "osc";
+import osc from "osc";
 import { Logger } from "./render-display";
 import { Filename, makeFile } from "./frame-controller";
 
@@ -22,11 +22,11 @@ export default function startOSC({
 
   const options = {
     localAddress: "127.0.0.1",
-    localPort: 53001,
+    localPort: 53000,
     metadata: true,
   };
 
-  const udpPort = new osc.UDPPort(options);
+  const udpPort = new osc.TCPSocketPort(options);
 
   const timeout = setTimeout(() => {
     logger.error("Timed out starting OSC server");

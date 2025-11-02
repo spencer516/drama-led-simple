@@ -19,7 +19,6 @@ export default async function createOctoController(
   { startUniverse, brightnessFactor }: ControllerArgs
 ): Promise<[SendToOcto, () => unknown]> {
   const brightnessFactorClamped = Math.max(Math.min(brightnessFactor, 1), 0);
-  // TODO: Put this back!!
   await checkSACNSocket(logger);
 
   logger.log(`Starting octo at universe ${startUniverse}`);
@@ -35,9 +34,12 @@ export default async function createOctoController(
       const octoFrame: OctoFrame = {};
 
       for (let channel = 0; channel < frame.length; channel++) {
+        const channelValue = Math.round(
+          (frame.at(channel) as number) * brightnessFactorClamped
+        );
+
         // Octo Frames are 1-indexed
-        octoFrame[`${channel + 1}`] =
-          (frame.at(channel) as number) * brightnessFactorClamped;
+        octoFrame[`${channel + 1}`] = channelValue;
       }
 
       sender

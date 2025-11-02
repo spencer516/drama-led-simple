@@ -102,6 +102,8 @@ export default class FrameController {
     for (const subscriber of this.subscribers.values()) {
       this.stopSubscriber(subscriber);
     }
+
+    this.pausedFiles.clear();
   }
 
   public pauseFile(file: Filename) {
@@ -123,6 +125,12 @@ export default class FrameController {
     if (subscriber != null) {
       this.logger.log(`Stopping file ${subscriber.file}`);
       this.stopSubscriber(subscriber);
+    }
+
+    // Remove from paused if it exists.
+    if (this.pausedFiles.has(file)) {
+      this.logger.log(`Stopping file ${file}`);
+      this.pausedFiles.delete(file);
     }
   }
 
@@ -153,7 +161,6 @@ export default class FrameController {
     }
 
     const currentFrame = this.pausedFiles.get(file)?.currentFrame ?? 0;
-    // console.log("CURRENT FRAME", currentFrame);
 
     this.pausedFiles.delete(file);
 

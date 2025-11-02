@@ -9,9 +9,9 @@
   "scripts": {
     "build": "tsc",
     "start": "node dist/index.js",
-    "dev": "nodemon -- --directory ~/desktop/drama-animation",
-    "test-file": "ts-node ./src/run-test.ts -d ~/desktop/drama-animation",
-    "test-frame": "ts-node ./src/load-frame.ts -d ~/desktop/drama-animation",
+    "dev": "nodemon -- --directory ~/desktop/25FP-curious-incident/led-binaries",
+    "test-file": "ts-node ./src/run-test.ts -d ~/desktop/25FP-curious-incident/led-binaries",
+    "test-frame": "ts-node ./src/load-frame.ts -d ~/desktop/25FP-curious-incident/led-binaries",
     "test-lights": "ts-node ./src/test-lights.ts"
   },
   "keywords": [],
