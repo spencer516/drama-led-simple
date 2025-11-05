@@ -37,7 +37,7 @@ export default function startOSC({
 
   udpPort.on("message", (oscMsg: osc.OSCMessage) => {
     const trigger = oscMsg.address.replace("/qlab/event/workspace/", "");
-    console.log(trigger, oscMsg.args.map((arg) => arg.value).join(" "));
+    console.log(trigger, oscMsg.args.map((arg: any) => arg.value).join(" "));
 
     if (hardStopCues.includes(trigger)) {
       onHardStop();
