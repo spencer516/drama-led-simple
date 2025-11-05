@@ -37,6 +37,7 @@ export default function startOSC({
 
   udpPort.on("message", (oscMsg: osc.OSCMessage) => {
     const trigger = oscMsg.address.replace("/qlab/event/workspace/", "");
+    console.log(trigger, oscMsg.args.map((arg) => arg.value).join(" "));
 
     if (hardStopCues.includes(trigger)) {
       onHardStop();
@@ -51,6 +52,7 @@ export default function startOSC({
     const maybeFile = oscMsg.args.at(1)?.value ?? "";
     const cueType = oscMsg.args.at(3)?.value;
     const [_, file] = maybeFile.match(/(\S+)\.mp4/) ?? [];
+    console.log("   FILE => ", file);
 
     // If there's no file in the cue name, we ignore
     if (file == null) {
