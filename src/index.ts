@@ -8,7 +8,7 @@ import startOSC from "./utils/start-osc-receiver";
 import createOctoController, { SendToOcto } from "./utils/octo-controller";
 import FrameController from "./utils/frame-controller";
 
-const BRIGHTNESS_FACTOR = 1;
+const BRIGHTNESS_FACTOR = 0.25;
 
 async function main() {
   const { directory, disableOcto } = await yargs(hideBin(process.argv))
