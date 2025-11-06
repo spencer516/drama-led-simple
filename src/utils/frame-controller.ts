@@ -1,4 +1,4 @@
-import { JsonIndex } from "./load-files";
+import { Frame, JsonIndex } from "./load-files";
 import { SendToOcto } from "./octo-controller";
 import { ActiveCue, Logger } from "./render-display";
 
@@ -202,5 +202,16 @@ export default class FrameController {
     }
     this.currentGlobalFrame = 0;
     this.logState();
+    this.sendToOcto(makeEmptyFrame());
   }
+}
+
+function makeEmptyFrame(): Frame {
+  const frame: Frame = [];
+
+  for (let channel = 1; channel < 96 * 3; channel++) {
+    frame[channel] = 0;
+  }
+
+  return frame;
 }
