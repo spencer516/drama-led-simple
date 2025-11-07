@@ -132,9 +132,11 @@ export default class FrameController {
     if (subscriber != null) {
       this.stopSubscriber(subscriber);
       this.logger.log(`Stopping file ${subscriber.file}`);
+      this.sendToOcto(makeEmptyFrame());
     } else if (this.pausedFiles.has(file)) {
       this.pausedFiles.delete(file);
       this.logger.log(`Stopping file ${file}`);
+      this.sendToOcto(makeEmptyFrame());
     }
   }
 
@@ -191,10 +193,6 @@ export default class FrameController {
 
     if (this.subscribers.size === 0) {
       this.stopImpl();
-
-      if (this.pausedFiles.size === 0) {
-        this.sendToOcto(makeEmptyFrame());
-      }
     }
   }
 
