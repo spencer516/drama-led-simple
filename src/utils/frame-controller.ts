@@ -191,6 +191,10 @@ export default class FrameController {
 
     if (this.subscribers.size === 0) {
       this.stopImpl();
+
+      if (this.pausedFiles.size === 0) {
+        this.sendToOcto(makeEmptyFrame());
+      }
     }
   }
 
@@ -202,7 +206,6 @@ export default class FrameController {
     }
     this.currentGlobalFrame = 0;
     this.logState();
-    this.sendToOcto(makeEmptyFrame());
   }
 }
 
