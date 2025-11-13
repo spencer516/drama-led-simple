@@ -31,6 +31,7 @@ export default class FrameController {
   private jsonIndex: JsonIndex;
   private logger: Logger;
   private sendToOcto: SendToOcto;
+  private pendingClear: NodeJS.Timeout | null = null;
 
   constructor(jsonIndex: JsonIndex, logger: Logger, sendToOcto: SendToOcto) {
     this.jsonIndex = jsonIndex;
@@ -132,12 +133,28 @@ export default class FrameController {
     if (subscriber != null) {
       this.stopSubscriber(subscriber);
       this.logger.log(`Stopping file ${subscriber.file}`);
-      this.sendToOcto(makeEmptyFrame());
+      this.clearScreen();
     } else if (this.pausedFiles.has(file)) {
       this.pausedFiles.delete(file);
       this.logger.log(`Stopping file ${file}`);
-      this.sendToOcto(makeEmptyFrame());
+      this.clearScreen();
     }
+  }
+
+  public stopPendingClear() {
+    if (this.pendingClear != null) {
+      clearTimeout(this.pendingClear);
+    }
+
+    this.pendingClear = null;
+  }
+
+  public clearScreen() {
+    this.stopPendingClear();
+    this.pendingClear = setTimeout(
+      () => this.sendToOcto(makeEmptyFrame()),
+      this.frameDuration * 2 // Wait two frames
+    );
   }
 
   public startFile(file: Filename) {
@@ -161,6 +178,9 @@ export default class FrameController {
 
   private start(file: Filename, totalFrames: number, callback: FrameCallback) {
     this.logger.log(`Starting file ${file}`);
+
+    // If there is a pending clear, tryg
+    this.stopPendingClear();
 
     if (this.subscribers.has(file)) {
       this.stopFile(file);
